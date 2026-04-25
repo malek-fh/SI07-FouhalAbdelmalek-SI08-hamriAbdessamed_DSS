@@ -1,8 +1,5 @@
-from __future__ import annotations
-
 from collections import Counter
 from pathlib import Path
-from typing import Any
 from xml.dom import minidom
 import xml.etree.ElementTree as ET
 
@@ -44,7 +41,7 @@ def build_station_map(root: ET.Element) -> dict[str, str]:
     }
 
 
-def get_filters_metadata() -> dict[str, Any]:
+def get_filters_metadata() -> dict[str, list[str]]:
     root = get_element_tree_root()
     station_names = [station.attrib["name"] for station in root.findall("./stations/station")]
     train_types: list[str] = []
@@ -60,7 +57,7 @@ def get_filters_metadata() -> dict[str, Any]:
     }
 
 
-def build_trip_record(line: ET.Element, trip: ET.Element, station_map: dict[str, str]) -> dict[str, Any]:
+def build_trip_record(line: ET.Element, trip: ET.Element, station_map: dict[str, str]) -> dict:
     schedule = trip.find("schedule")
     days_text = (trip.findtext("days") or "").strip()
     classes = [
@@ -96,10 +93,10 @@ def filter_trips(
     arrival: str = "",
     train_type: str = "",
     max_price: int | None = None,
-) -> list[dict[str, Any]]:
+) -> list[dict]:
     root = get_element_tree_root()
     station_map = build_station_map(root)
-    results: list[dict[str, Any]] = []
+    results: list[dict] = []
 
     for line in root.findall("./lines/line"):
         departure_city = station_map.get(line.attrib["departure"], line.attrib["departure"])
@@ -130,7 +127,7 @@ def filter_trips(
     return results
 
 
-def get_trip_by_code_dom(trip_code: str) -> dict[str, Any] | None:
+def get_trip_by_code_dom(trip_code: str) -> dict | None:
     normalized_code = trip_code.strip().upper()
     if not normalized_code:
         return None
@@ -179,10 +176,10 @@ def get_trip_by_code_dom(trip_code: str) -> dict[str, Any] | None:
     return None
 
 
-def compute_statistics() -> dict[str, Any]:
+def compute_statistics() -> dict:
     root = get_element_tree_root()
     station_map = build_station_map(root)
-    line_summaries: list[dict[str, Any]] = []
+    line_summaries: list[dict] = []
     trip_type_counts: Counter[str] = Counter()
 
     for line in root.findall("./lines/line"):
